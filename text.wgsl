@@ -421,8 +421,6 @@ struct FragIn {
 
 
 @group(0) @binding(0) var<uniform> spcu: ScreenSpaceCameraUniform;
-@group(0) @binding(1) var textureArray: texture_2d_array<f32>;
-@group(0) @binding(2) var textureSampler: sampler;
 
 
 @vertex
@@ -442,30 +440,26 @@ fn fs_main(in: FragIn) -> @location(0) vec4f{
     var alpha = 1.0;
     var color = vec3f(0.0, 0.0, 0.0);
 
-    var out : array<u32, 32> = array<u32, 32>();
-    var outcap = 32u;
-    var n = 0u;
+    var floatStr : array<u32, 32> = array<u32, 32>();
+    var floatStrCap = 32u;
+    var floatStrLen = 0u;
         
-    var finalstr : array<u32, 32> = array<u32, 32>();
-    var nf = 0u;
+    var finalStr : array<u32, 32> = array<u32, 32>();
+    var finalStrLen = 0u;
 
     var textScale = 30f;
-    var textHeight = 5f * textScale;
 
     var debugval = spcu.mousex;
 
-    if(in.fragPos.y >= startPos.y && in.fragPos.y <= startPos.y + textHeight){
-        n = 0u;
-        nf = 0u;
+    append_fixed(&floatStr, &floatStrLen, floatStrCap, debugval, 3);
 
-        append_fixed(&out, &n, outcap, debugval, 3);
-        // append_fixed(&out, &n, outcap, -105.105, 3);
-        cat_str(&finalstr, &nf, &out, &n);
-        if(OverlapsText(in.fragPos.xy, startPos, &finalstr, nf, textScale)){
-            color.r = 1.0;
-            alpha = 1.0;
-        }
+    //in case you want to label the float/print text, you would add it to finalStr, and append the floatStr to finalStr
+    cat_str(&finalStr, &finalStrLen, &floatStr, &floatStrLen);
+    if(OverlapsText(in.fragPos.xy, startPos, &finalStr, finalStrLen, textScale)){
+        color.r = 1.0;
+        alpha = 1.0;
     }
+    
 
     return vec4f(color, alpha);
 }
