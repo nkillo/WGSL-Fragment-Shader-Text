@@ -308,19 +308,6 @@ fn OverlapsText(fragPos: vec2f, startPos: vec2f, chars: ptr<function, array<u32,
 
 
 
-
-fn cat_str(
-    str1: ptr<function, array<u32, 32>>, 
-    n1  : ptr<function, u32>,
-    str2: ptr<function, array<u32, 32>>, 
-    n2  : ptr<function, u32>,
-    ){
-        for(var i = 0u; i < *n2 && *n1 < 32; i++){
-            str1[*n1] = str2[i];
-            *n1++;
-        }
-    }
-
 //input: char array, count, max, floating point value
 //output: appended floating point number to char array
 fn append_fixed(
@@ -395,11 +382,6 @@ struct ScreenSpaceCameraUniform{
     mouseright      :   u32,
     mousewheel      :   i32,
 
-    pad0            :   f32,
-    pad1            :   f32,
-    pad2            :   f32,
-    pad3            :   f32,
-
 };
 
 
@@ -443,23 +425,18 @@ fn fs_main(in: FragIn) -> @location(0) vec4f{
     var floatStr : array<u32, 32> = array<u32, 32>();
     var floatStrCap = 32u;
     var floatStrLen = 0u;
-        
-    var finalStr : array<u32, 32> = array<u32, 32>();
-    var finalStrLen = 0u;
 
     var textScale = 30f;
 
     var debugval = spcu.mousex;
 
+    //formats a float into ascii number characters
     append_fixed(&floatStr, &floatStrLen, floatStrCap, debugval, 3);
 
-    //in case you want to label the float/print text, you would add it to finalStr, and append the floatStr to finalStr
-    cat_str(&finalStr, &finalStrLen, &floatStr, &floatStrLen);
-    if(OverlapsText(in.fragPos.xy, startPos, &finalStr, finalStrLen, textScale)){
+    if(OverlapsText(in.fragPos.xy, startPos, &floatStr, floatStrLen, textScale)){
         color.r = 1.0;
         alpha = 1.0;
     }
-    
 
     return vec4f(color, alpha);
 }
